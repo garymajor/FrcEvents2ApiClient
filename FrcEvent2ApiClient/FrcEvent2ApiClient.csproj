@@ -108,6 +108,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FrcEvent2ApiClient.cs" />
+    <Compile Include="FrcObjects\TeamData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\FrcEvent2ApiClient.rd.xml" />
   </ItemGroup>
