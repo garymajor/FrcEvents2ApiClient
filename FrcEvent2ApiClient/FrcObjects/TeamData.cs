@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FrcEvent2ApiClient.FrcObjects
+namespace FrcEvent2ApiClient.FrcObjects.TeamAPI
 {
 
     public class Team
