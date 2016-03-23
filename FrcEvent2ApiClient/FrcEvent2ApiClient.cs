@@ -1,6 +1,12 @@
-﻿using System;
+﻿using FrcEvent2ApiClient.FrcObjects.MatchAPI;
+using FrcEvent2ApiClient.FrcObjects.RankingAPI;
+using FrcEvent2ApiClient.FrcObjects.ScheduleAPI;
+using FrcEvent2ApiClient.FrcObjects.TeamAPI;
+using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Web.Http;
@@ -15,15 +21,20 @@ namespace FrcEvent2ApiClient
         const string Token = "";
         const string TeamNumberDefault = "2147";
 
-        public static async Task<string> GetTeamData(string teamNumber)
+        public static async Task<TeamData> GetTeamData(string teamNumber)
         {
             int i = 0;
-            if (teamNumber.CompareTo("") == 0 || !Int32.TryParse(teamNumber, out i))
+            if (teamNumber.CompareTo("") == 0 || !int.TryParse(teamNumber, out i))
             {
                 teamNumber = "2147";
             }
 
-            return await GetAsyncFromFirst(new Uri(BaseUrl + Season + "/teams?teamNumber=" + teamNumber));
+            var response = await GetAsyncFromFirst(new Uri(BaseUrl + Season + "/teams?teamNumber=" + teamNumber));
+            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(TeamData));
+            using (var ms = new MemoryStream(Encoding.Unicode.GetBytes(response)))
+            {
+                return (TeamData)serializer.ReadObject(ms); // serialize the data into TeamData
+            }
         }
 
         public static async Task<string> GetEventMatchesForTeam(string eventCode, string teamNumber)
@@ -48,20 +59,25 @@ namespace FrcEvent2ApiClient
             return schedule;
         }
 
-        public static async Task<string> GetEventRankingList(string eventCode)
+        public static async Task<List<RankingData>> GetEventRankingList(string eventCode)
         {
             if (eventCode.CompareTo("") == 0)
             {
                 eventCode = "WAELL";
             }
 
-            return await GetAsyncFromFirst(new Uri(BaseUrl + Season + "/ranking/" + eventCode));
+            var response = await GetAsyncFromFirst(new Uri(BaseUrl + Season + "/ranking/" + eventCode));
+            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(RankingData));
+            using (var ms = new MemoryStream(Encoding.Unicode.GetBytes(response)))
+            {
+                return (List<RankingData>)serializer.ReadObject(ms); // serialize the data into TeamData
+            }
         }
 
-        public static async Task<string> GetEventRankingForTeam(string eventCode, string teamNumber)
+        public static async Task<List<RankingData>> GetEventRankingForTeam(string eventCode, string teamNumber)
         {
             int i = 0;
-            if (teamNumber.CompareTo("") == 0 || !Int32.TryParse(teamNumber, out i))
+            if (teamNumber.CompareTo("") == 0 || !int.TryParse(teamNumber, out i))
             {
                 teamNumber = "2147";
             }
@@ -71,7 +87,12 @@ namespace FrcEvent2ApiClient
                 eventCode = "WAELL";
             }
 
-            return await GetAsyncFromFirst(new Uri(BaseUrl + Season + "/ranking/" + eventCode + "?teamNumber=" + teamNumber));
+            var response = await GetAsyncFromFirst(new Uri(BaseUrl + Season + "/ranking/" + eventCode + "?teamNumber=" + teamNumber));
+            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(RankingData));
+            using (var ms = new MemoryStream(Encoding.Unicode.GetBytes(response)))
+            {
+                return (List<RankingData>)serializer.ReadObject(ms); // serialize the data into TeamData
+            }
         }
 
         private static async Task<string> GetAsyncFromFirst(Uri uri)
